@@ -1,0 +1,4 @@
+IMDB_data_sets
+.venv
+.ipynb_checkpoints
+__pycache__
