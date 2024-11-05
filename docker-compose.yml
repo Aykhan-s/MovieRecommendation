@@ -1,0 +1,96 @@
+services:
+  postgres:
+    image: postgres:17.0-alpine
+    container_name: "movier-postgres"
+    hostname: "movier-postgres"
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    env_file:
+      - ./config/postgres/.env
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}" ]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    init: true
+
+  migrate:
+    image: migrate/migrate:v4.18.1
+    container_name: "movier-migrate"
+    hostname: "movier-migrate"
+    env_file:
+      - ./config/postgres/.env
+    environment:
+      - POSTGRES_HOST=movier-postgres
+    volumes:
+      - ./server/pkg/storage/postgresql/migrations:/migrations
+    init: true
+    depends_on:
+      postgres:
+        condition: service_healthy
+    entrypoint: [ "/bin/sh", "-c", "migrate -path=/migrations/ -database postgres://$${POSTGRES_USER}:$${POSTGRES_PASSWORD}@$${POSTGRES_HOST}:$${POSTGRES_PORT}/$${POSTGRES_DB}?sslmode=disable up" ]
+
+  etl:
+    image: movier:latest
+    build: ./server
+    container_name: "movier-etl"
+    hostname: "movier-etl"
+    env_file:
+      - ./config/postgres/.env
+    environment:
+      - POSTGRES_HOST=movier-postgres
+    init: true
+    depends_on:
+      postgres:
+        condition: service_healthy
+      migrate:
+        condition: service_completed_successfully
+    entrypoint: [ "/bin/sh", "-c", "./movier download && ./movier filter" ]
+
+  recommender:
+    build: ./recommender
+    container_name: "movier-recommender"
+    hostname: "movier-recommender"
+    env_file:
+      - ./config/postgres/.env
+    environment:
+      - POSTGRES_HOST=movier-postgres
+      - GRPC_PORT=50051
+    init: true
+    depends_on:
+      postgres:
+        condition: service_healthy
+      etl:
+        condition: service_completed_successfully
+    healthcheck:
+      test: [ "CMD-SHELL", "/bin/grpc_health_probe -addr=:$${GRPC_PORT}" ]
+      interval: 5s # how often to check the health
+      timeout: 5s # how long to wait for a response
+      retries: 5 # how many retries before marking as unhealthy
+      start_period: 10s # initial delay before starting health checks
+    entrypoint: [ "uv", "run", "main.py" ]
+
+  server:
+    image: movier:latest
+    container_name: "movier-server"
+    hostname: "movier-server"
+    ports:
+      - "8080:8080"
+    env_file:
+      - ./config/postgres/.env
+    environment:
+      - POSTGRES_HOST=movier-postgres
+      - BASE_URL=http://localhost:8080
+      - RECOMMENDER_SERVICE_GRPC_HOST=movier-recommender
+      - RECOMMENDER_SERVICE_GRPC_PORT=50051
+    init: true
+    depends_on:
+      recommender:
+        condition: service_healthy
+    entrypoint: [ "./movier", "serve" ]
+
+volumes:
+  postgres_data:

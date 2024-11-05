@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Movier</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="icon" href="https://ftp.aykhans.me/web/client/pubshares/hB6VSdCnBCr8gFPeiMuCji/browse?path=%2Fshipit.png"
+        type="image/x-icon">
+
+    <style>
+        .input-wrapper {
+            margin-bottom: 10px;
+        }
+
+        .btn-remove {
+            margin-left: 5px;
+        }
+
+        .btn-custom-yellow {
+            background-color: #f3ce13;
+            border-color: #f3ce13;
+            color: #000;
+        }
+
+        .btn-custom-yellow:hover {
+            background-color: #dbb911;
+            border-color: #dbb911;
+            color: #000;
+        }
+
+        .btn-custom-yellow:disabled {
+            background-color: #f3ce13;
+            border-color: #f3ce13;
+            opacity: 0.65;
+        }
+
+        .single-input {
+            width: 50%;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container mt-5">
+        <div class="row justify-content-center">
+            <div class="col-md-8">
+                <form id="dynamicForm">
+                    <div id="input-container" class="row justify-content-center">
+                        <div class="col-md-6 input-wrapper single-input">
+                            <div class="input-group">
+                                <input type="text" class="form-control" name="tconst" placeholder="tt0000009"
+                                    pattern="^tt[0-9]+$" minlength="9" maxlength="12" required>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mb-4 text-center">
+                        <button type="button" id="add-field" class="btn btn-custom-yellow">
+                            <i class="fa-solid fa-plus"></i> Add Field
+                        </button>
+                    </div>
+
+                    <div class="row text-center mb-3">
+                        <div class="col-md-6">
+                            <label for="min-votes">Min Votes ({{ .MinMax.MinVotes | formatNumber }})</label>
+                            <input type="number" id="min-votes" name="min-votes" class="form-control mx-sm-3" value="1"
+                                min="{{ .MinMax.MinVotes }}" max="{{ .MinMax.MaxVotes }}">
+                        </div>
+                        <div class="col-md-6">
+                            <label for="max-votes">Max Votes ({{ .MinMax.MaxVotes | formatNumber }})</label>
+                            <input type="number" id="max-votes" name="max-votes" class="form-control mx-sm-3"
+                                min="{{ .MinMax.MinVotes }}" max="{{ .MinMax.MaxVotes }}">
+                        </div>
+                    </div>
+
+                    <div class="row text-center mb-3">
+                        <div class="col-md-6">
+                            <label for="min-year">Min Year ({{ .MinMax.MinYear }})</label>
+                            <input type="number" id="min-year" name="min-year" class="form-control mx-sm-3" value="1"
+                                min="{{ .MinMax.MinYear }}" max="{{ .MinMax.MaxYear }}">
+                        </div>
+                        <div class="col-md-6">
+                            <label for="max-year">Max Year ({{ .MinMax.MaxYear }})</label>
+                            <input type="number" id="max-year" name="max-year" class="form-control mx-sm-3"
+                                min="{{ .MinMax.MinYear }}" max="{{ .MinMax.MaxYear }}">
+                        </div>
+                    </div>
+
+                    <div class="row text-center mb-5">
+                        <div class="col-md-6">
+                            <label for="min-rating">Min Rating ({{ .MinMax.MinRating }})</label>
+                            <input type="number" step="0.1" id="min-rating" name="min-rating"
+                                class="form-control mx-sm-3" min="{{ .MinMax.MinRating }}"
+                                max="{{ .MinMax.MaxRating }}">
+                        </div>
+                        <div class="col-md-6">
+                            <label for="max-rating">Max Rating ({{ .MinMax.MaxRating }})</label>
+                            <input type="number" step="0.1" id="max-rating" name="max-rating"
+                                class="form-control mx-sm-3" min="{{ .MinMax.MinRating }}"
+                                max="{{ .MinMax.MaxRating }}">
+                        </div>
+                    </div>
+
+                    <div class="row text-center mb-4">
+                        <div class="col-md-3">
+                            <label for="year-weight">Year Weight</label>
+                            <input type="number" id="year-weight" name="year-weight" class="form-control mx-sm-3 weight"
+                                value="100" min="0" max="400">
+                        </div>
+                        <div class="col-md-3">
+                            <label for="rating-weight">Rating Weight</label>
+                            <input type="number" id="rating-weight" name="rating-weight"
+                                class="form-control mx-sm-3 weight" value="100" min="0" max="400">
+                        </div>
+                        <div class="col-md-3">
+                            <label for="genres-weight">Genres Weight</label>
+                            <input type="number" id="genres-weight" name="genres-weight"
+                                class="form-control mx-sm-3 weight" value="100" min="0" max="400">
+                        </div>
+                        <div class="col-md-3">
+                            <label for="nconsts-weight">Nconsts Weight</label>
+                            <input type="number" id="nconsts-weight" name="nconsts-weight"
+                                class="form-control mx-sm-3 weight" value="100" min="0" max="400">
+                        </div>
+                    </div>
+                    <div class="row text-center">
+                        <p id="weight-sum"></p>
+                    </div>
+
+                    <div class="row justify-content-center text-center mb-4">
+                        <div class="col-md-3">
+                            <label for="n">Number of Recommendations</label>
+                            <input type="number" id="n" name="n" class="form-control mx-sm-3" value="5" min="0"
+                                max="20">
+                        </div>
+                    </div>
+
+                    <div class="text-center mb-4">
+                        <p class="response-err" style="color: red;"></p>
+                        <button type="submit" class="btn btn-success">Get</button>
+                    </div>
+
+                    <div class="row response mb-5"></div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/js/bootstrap.bundle.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const container = document.getElementById('input-container');
+            const addButton = document.getElementById('add-field');
+            const form = document.getElementById('dynamicForm');
+            const MAX_FIELDS = 5;
+
+            function handleRemoveClick(event) {
+                const removeButton = event.target.closest('.btn-remove');
+                if (removeButton) {
+                    const wrapper = removeButton.closest('.input-wrapper');
+                    if (wrapper) {
+                        wrapper.remove();
+                        addButton.disabled = false;
+                        rearrangeInputs();
+                    }
+                }
+            }
+
+            function rearrangeInputs() {
+                const wrappers = container.getElementsByClassName('input-wrapper');
+                Array.from(wrappers).forEach((wrapper, index) => {
+                    wrapper.className = 'col-md-6 input-wrapper';
+                    if (wrappers.length === 1) {
+                        wrapper.classList.add('single-input');
+                    } else {
+                        wrapper.classList.remove('single-input');
+                    }
+                });
+            }
+
+            addButton.addEventListener('click', function () {
+                const inputGroups = container.getElementsByClassName('input-wrapper');
+
+                if (inputGroups.length < MAX_FIELDS) {
+                    const newWrapper = document.createElement('div');
+                    newWrapper.className = 'col-md-6 input-wrapper';
+
+                    newWrapper.innerHTML = `
+                        <div class="input-group">
+                            <input type="text" class="form-control" name="tconst" placeholder="tt0000009" pattern="^tt[0-9]+$" minlength="9" maxlength="12" required>
+                            <button type="button" class="btn btn-custom-yellow btn-remove">
+                                <i class="fa-solid fa-minus"></i>
+                            </button>
+                        </div>
+                    `;
+                    container.appendChild(newWrapper);
+
+                    if (inputGroups.length === 1) {
+                        inputGroups[0].classList.remove('single-input');
+                    }
+
+                    if (inputGroups.length === MAX_FIELDS) {
+                        addButton.disabled = true;
+                    }
+                }
+            });
+
+            container.addEventListener('click', handleRemoveClick);
+
+            const weights = document.querySelectorAll('.weight');
+            const weightSum = document.getElementById('weight-sum');
+            function calculateSum() {
+                let sum = 0;
+                let nonZeroWeights = 0;
+                weights.forEach(weight => {
+                    sum += parseInt(weight.value) || 0;
+                    if (parseInt(weight.value) > 0) {
+                        nonZeroWeights++;
+                    }
+                });
+                if (nonZeroWeights * 100 !== sum) {
+                    weightSum.textContent = `Total: ${sum} (Total weights must be ${nonZeroWeights * 100})`;
+                    weightSum.style.color = 'red';
+                } else {
+                    weightSum.textContent = 'Total: ' + sum;
+                    weightSum.style.color = 'green';
+                }
+            }
+
+            weights.forEach(weight => {
+                weight.addEventListener('input', calculateSum);
+            });
+
+            form.addEventListener('submit', function (e) {
+                e.preventDefault();
+                const formData = new FormData(form);
+
+                const params = new URLSearchParams();
+                formData.getAll('tconst').forEach(tconst => {
+                    params.append('tconst', tconst);
+                });
+                if (formData.get('min-votes') !== '') {
+                    params.append('min_votes', formData.get('min-votes'));
+                }
+                if (formData.get('max-votes') !== '') {
+                    params.append('max_votes', formData.get('max-votes'));
+                }
+                if (formData.get('min-year') !== '') {
+                    params.append('min_year', formData.get('min-year'));
+                }
+                if (formData.get('max-year') !== '') {
+                    params.append('max_year', formData.get('max-year'));
+                }
+                if (formData.get('min-rating') !== '') {
+                    params.append('min_rating', formData.get('min-rating'));
+                }
+                if (formData.get('max-rating') !== '') {
+                    params.append('max_rating', formData.get('max-rating'));
+                }
+                if (formData.get('year-weight') !== '') {
+                    params.append('year_weight', formData.get('year-weight'));
+                }
+                if (formData.get('rating-weight') !== '') {
+                    params.append('rating_weight', formData.get('rating-weight'));
+                }
+                if (formData.get('genres-weight') !== '') {
+                    params.append('genres_weight', formData.get('genres-weight'));
+                }
+                if (formData.get('nconsts-weight') !== '') {
+                    params.append('nconsts_weight', formData.get('nconsts-weight'));
+                }
+                if (formData.get('n') !== '') {
+                    params.append('n', formData.get('n'));
+                }
+
+                const queryString = new URLSearchParams(params).toString();
+                const responseErr = document.querySelector('.response-err');
+                const responseContainer = document.querySelector('.response');
+
+                async function fetchRecommendations() {
+                    responseErr.textContent = '';
+                    try {
+                        const response = await fetch(`{{ .BaseURL }}/recs?${queryString}`, { method: 'GET' });
+                        const data = await response.json();
+
+                        if (response.status === 200) {
+                            const responseTable = document.createElement('table');
+                            responseTable.className = 'table';
+
+                            const responseTableHead = document.createElement('thead');
+                            const responseTableHeadRow = document.createElement('tr');
+                            responseTableHead.appendChild(responseTableHeadRow);
+                            const responseTableHeadCellID = document.createElement('th');
+                            responseTableHeadCellID.scope = 'col';
+                            responseTableHeadCellID.textContent = '#';
+                            responseTableHeadRow.appendChild(responseTableHeadCellID);
+                            const responseTableHeadCellTconst = document.createElement('th');
+                            responseTableHeadCellTconst.scope = 'col';
+                            responseTableHeadCellTconst.textContent = 'tconst';
+                            responseTableHeadRow.appendChild(responseTableHeadCellTconst);
+                            for (let i = 1; i <= data[0].weights.length; i++) {
+                                const responseTableHeadCellWeight = document.createElement('th');
+                                responseTableHeadCellWeight.scope = 'col';
+                                responseTableHeadCellWeight.textContent = i;
+                                responseTableHeadRow.appendChild(responseTableHeadCellWeight);
+                            }
+                            responseTable.appendChild(responseTableHead);
+
+
+                            const responseTableBody = document.createElement('tbody');
+                            responseTable.appendChild(responseTableBody);
+
+                            let rowIndex = 1;
+                            for (const d of data) {
+                                const row = document.createElement('tr');
+                                const rowIndexElement = document.createElement('th');
+                                rowIndexElement.scope = 'row';
+                                rowIndexElement.textContent = rowIndex;
+                                rowIndex++;
+                                row.appendChild(rowIndexElement);
+
+                                const cellTconst = document.createElement('td');
+                                const cellTconstText = document.createElement('a');
+                                cellTconstText.href = `https://www.imdb.com/title/${d.tconst}/`;
+                                cellTconstText.target = '_blank';
+                                cellTconstText.textContent = d.tconst;
+                                cellTconst.appendChild(cellTconstText);
+                                row.appendChild(cellTconst);
+                                for (const c of d.weights) {
+                                    const cell = document.createElement('td');
+                                    cell.textContent = c;
+                                    row.appendChild(cell);
+                                }
+                                responseTableBody.appendChild(row);
+                            }
+                            responseContainer.innerHTML = responseTable.outerHTML;
+                        } else if (response.status === 400 || response.status === 404) {
+                            const errorMessage = data.error || "An error occurred";
+                            responseErr.textContent = errorMessage;
+                        } else {
+                            console.error("Error:", response.status, response.statusText);
+                        }
+                    } catch (error) {
+                        console.error("Error:", error);
+                    }
+                }
+
+                fetchRecommendations();
+            });
+        });
+    </script>
+</body>
+
+</html>

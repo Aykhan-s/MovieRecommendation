@@ -1,0 +1,53 @@
+syntax = "proto3";
+
+package recommender;
+
+option go_package = "github.com/aykhans/movier/server/pkg/proto";
+
+service Recommender {
+  rpc GetRecommendations(Request) returns (Response) {}
+}
+
+message Filter {
+  oneof min_votes_oneof {
+    uint32 min_votes = 1;
+  }
+  oneof max_votes_oneof {
+    uint32 max_votes = 2;
+  }
+  oneof min_year_oneof {
+    uint32 min_year = 3;
+  }
+  oneof max_year_oneof {
+    uint32 max_year = 4;
+  }
+  oneof min_rating_oneof {
+    float min_rating = 5;
+  }
+  oneof max_rating_oneof {
+    float max_rating = 6;
+  }
+}
+
+message Weight {
+  uint32 year = 1;
+  uint32 rating = 2;
+  uint32 genres = 3;
+  uint32 nconsts = 4;
+}
+
+message Request {
+  repeated string tconsts = 1;
+  uint32 n = 2;
+  Filter filter = 3;
+  Weight weight = 4;
+}
+
+message Response {
+  repeated RecommendedMovie movies = 1;
+}
+
+message RecommendedMovie {
+  string tconst = 1;
+  repeated string weights = 2;
+}
