@@ -196,9 +196,11 @@ func (h *IMDbHandler) HandlerGetRecommendations(w http.ResponseWriter, r *http.R
 			RespondWithJSON(w, ErrorResponse{Error: "year_weight should be greater than or equal to 0 and less than or equal to 400"}, http.StatusBadRequest)
 			return
 		}
-		weight.Year = uint32(yearWeight)
-		totalSum += yearWeight
-		features = append(features, "year")
+		if yearWeight > 0 {
+			weight.Year = uint32(yearWeight)
+			totalSum += yearWeight
+			features = append(features, "year")
+		}
 	}
 	if ratingWeightQ != "" {
 		ratingWeight, err := strconv.Atoi(ratingWeightQ)
@@ -210,9 +212,11 @@ func (h *IMDbHandler) HandlerGetRecommendations(w http.ResponseWriter, r *http.R
 			RespondWithJSON(w, ErrorResponse{Error: "rating_weight should be greater than or equal to 0 and less than or equal to 400"}, http.StatusBadRequest)
 			return
 		}
-		weight.Rating = uint32(ratingWeight)
-		totalSum += ratingWeight
-		features = append(features, "rating")
+		if ratingWeight > 0 {
+			weight.Rating = uint32(ratingWeight)
+			totalSum += ratingWeight
+			features = append(features, "rating")
+		}
 	}
 	if genresWeightQ != "" {
 		genresWeight, err := strconv.Atoi(genresWeightQ)
@@ -224,9 +228,11 @@ func (h *IMDbHandler) HandlerGetRecommendations(w http.ResponseWriter, r *http.R
 			RespondWithJSON(w, ErrorResponse{Error: "genres_weight should be greater than or equal to 0 and less than or equal to 400"}, http.StatusBadRequest)
 			return
 		}
-		weight.Genres = uint32(genresWeight)
-		totalSum += genresWeight
-		features = append(features, "genres")
+		if genresWeight > 0 {
+			weight.Genres = uint32(genresWeight)
+			totalSum += genresWeight
+			features = append(features, "genres")
+		}
 	}
 	if nconstsWeightQ != "" {
 		nconstsWeight, err := strconv.Atoi(nconstsWeightQ)
@@ -238,9 +244,11 @@ func (h *IMDbHandler) HandlerGetRecommendations(w http.ResponseWriter, r *http.R
 			RespondWithJSON(w, ErrorResponse{Error: "nconsts_weight should be greater than or equal to 0 and less than or equal to 400"}, http.StatusBadRequest)
 			return
 		}
-		weight.Nconsts = uint32(nconstsWeight)
-		totalSum += nconstsWeight
-		features = append(features, "nconsts")
+		if nconstsWeight > 0 {
+			weight.Nconsts = uint32(nconstsWeight)
+			totalSum += nconstsWeight
+			features = append(features, "nconsts")
+		}
 	}
 
 	featuresLen := len(features)
