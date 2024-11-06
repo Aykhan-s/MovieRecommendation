@@ -10,7 +10,7 @@ This project uses non-commercial IMDb datasets, available at: [IMDb Datasets](ht
 1. Rename the environment file:
    Rename `/config/postgres/.env.example` to `/config/postgres/.env`:
    ```sh
-   mv ./config/postgres/.env.example ./config/postgres/.env
+   cp ./config/postgres/.env.example ./config/postgres/.env
    ```
 
 2. Run with Docker Compose:
