@@ -1,5 +1,3 @@
-### Movier: Get Movie Recommendations Based on IMDb Data
-
 Movier recommends movies based on the IMDb dataset by comparing them with movies you provide.
 
 :warning: This project is not production-ready.
@@ -16,7 +14,6 @@ This project uses non-commercial IMDb datasets, available at: [IMDb Datasets](ht
    ```
 
 2. Run with Docker Compose:
-   Use Docker Compose to start the application:
    ```sh
    docker compose up
    ```
