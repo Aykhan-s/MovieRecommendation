@@ -4,15 +4,16 @@ import (
 	"context"
 
 	"github.com/jackc/pgx/v5"
+	"github.com/jackc/pgx/v5/pgxpool"
 
 	"github.com/aykhans/movier/server/pkg/dto"
 )
 
 type IMDbRepository struct {
-	db *pgx.Conn
+	db *pgxpool.Pool
 }
 
-func NewIMDbRepository(db *pgx.Conn) *IMDbRepository {
+func NewIMDbRepository(db *pgxpool.Pool) *IMDbRepository {
 	return &IMDbRepository{
 		db: db,
 	}

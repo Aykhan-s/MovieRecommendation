@@ -1,7 +1,6 @@
 package cmd
 
 import (
-	"context"
 	"fmt"
 	"log"
 	"net/http"
@@ -36,7 +35,7 @@ func runServe() error {
 		return err
 	}
 	db, err := postgresql.NewDB(dbURL)
-	defer db.Close(context.Background())
+	defer db.Close()
 	if err != nil {
 		return err
 	}
